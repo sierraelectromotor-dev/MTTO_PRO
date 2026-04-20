@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id          String        @id @default(uuid())
+  name        String
+  nit         String
+  plan_type   PlanType      @default(BASIC)
+  active      Boolean       @default(true)
+  users       User[]
+  vehicles    Vehicle[]
+  reports     FaultReport[]
+  workOrders  WorkOrder[]
+  requestedParts RequestedPart[]
+
+  @@map("tenants")
+}
+
+enum PlanType {
+  BASIC
+  PREMIUM
+}
+
+model User {
+  id               String       @id @default(uuid())
+  email            String       @unique
+  password         String
+  role             Role         @default(CONDUCTOR)
+  
+  name             String?
+  specialty        String?
+
+  tenant_id        String
+  tenant           Tenant       @relation(fields: [tenant_id], references: [id])
+  faultReports     FaultReport[] @relation("DriverReports")
+  technicianOrders WorkOrder[]   @relation("TechnicianOrders")
+  logs             WorkOrderLog[]
+  approvedParts    RequestedPart[] @relation("PartApprover")
+
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @default(now()) @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN_EMPRESA
+  TECNICO
+  ALMACENISTA
+  CONDUCTOR
+}
+
+model Vehicle {
+  id           String        @id @default(uuid())
+  plate        String        @unique
+  brand        String
+  model        String
+  status       VehicleStatus @default(OPERATIVO)
+  tenant_id    String
+  tenant       Tenant        @relation(fields: [tenant_id], references: [id])
+  faultReports FaultReport[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+
+  @@map("vehicles")
+}
+
+enum VehicleStatus {
+  OPERATIVO
+  TALLER
+  PARADA_CRITICA
+}
+
+model FaultReport {
+  id              String       @id @default(uuid())
+  description     String
+  photo_url       String?
+  status          ReportStatus @default(PENDIENTE)
+  system_affected String?
+  
+  vehicle_id      String
+  vehicle         Vehicle      @relation(fields: [vehicle_id], references: [id])
+  driver_id       String
+  driver          User         @relation("DriverReports", fields: [driver_id], references: [id])
+  tenant_id       String
+  tenant          Tenant       @relation(fields: [tenant_id], references: [id])
+  workOrders      WorkOrder[]
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now()) @updatedAt
+
+  @@map("fault_reports")
+}
+
+enum ReportStatus {
+  PENDIENTE
+  EN_REVISION
+  EN_REPARACION
+  CONVERTIDO
+}
+
+model WorkOrder {
+  id            String      @id @default(uuid())
+  report_id     String
+  report        FaultReport @relation(fields: [report_id], references: [id])
+  technician_id String
+  technician    User        @relation("TechnicianOrders", fields: [technician_id], references: [id])
+  status        OrderStatus @default(ASIGNADA)
+  observations  String?
+  
+  concepts      String?
+  conclusion    String?
+
+  tenant_id     String
+  tenant        Tenant      @relation(fields: [tenant_id], references: [id])
+
+  logs          WorkOrderLog[]
+  requestedParts RequestedPart[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now()) @updatedAt
+
+  @@map("work_orders")
+}
+
+enum OrderStatus {
+  ASIGNADA
+  EN_PROCESO
+  ESPERANDO_REPUESTOS
+  REPUESTOS_RECIBIDOS
+  TERMINADA
+  TERMINADA_CON_NOVEDAD
+}
+
+model WorkOrderLog {
+  id            String   @id @default(uuid())
+  
+  old_status    String?
+  new_status    String
+  notes         String?
+  
+  work_order_id String
+  work_order    WorkOrder @relation(fields: [work_order_id], references: [id])
+
+  user_id       String
+  user          User      @relation(fields: [user_id], references: [id])
+
+  createdAt     DateTime  @default(now())
+
+  @@map("work_order_logs")
+}
+
+model RequestedPart {
+  id              String      @id @default(uuid())
+  name            String
+  quantity        Int         @default(1)
+  status          PartStatus  @default(PENDIENTE_APROBACION)
+  
+  work_order_id   String
+  work_order      WorkOrder   @relation(fields: [work_order_id], references: [id])
+  
+  tenant_id       String
+  tenant          Tenant      @relation(fields: [tenant_id], references: [id])
+  
+  approver_id     String?
+  approver        User?       @relation("PartApprover", fields: [approver_id], references: [id])
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now()) @updatedAt
+  
+  @@map("requested_parts")
+}
+
+enum PartStatus {
+  PENDIENTE_APROBACION
+  APROBADO
+  RECHAZADO
+  DISPONIBLE
+  NO_DISPONIBLE
+  ENTREGADO
+}
