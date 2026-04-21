@@ -47,4 +47,21 @@ const createVehicle = async (req, res) => {
   }
 };
 
-module.exports = { getVehicles, createVehicle };
+const deleteVehicle = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tenant_id } = req.user;
+
+    const hasReports = await prisma.faultReport.findFirst({ where: { vehicle_id: id }});
+    if (hasReports) {
+      return res.status(400).json({ error: 'No se puede eliminar un vehículo que ya posee historial de reportes.' });
+    }
+
+    await prisma.vehicle.delete({ where: { id, tenant_id } });
+    res.json({ message: 'Vehículo eliminado exitosamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Fallo al eliminar vehículo', details: err.message });
+  }
+};
+
+module.exports = { getVehicles, createVehicle, deleteVehicle };

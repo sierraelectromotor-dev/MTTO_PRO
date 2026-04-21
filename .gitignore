@@ -88,7 +88,13 @@ frontend/build/
 .capacitor/
 frontend/.capacitor/
 local.properties
-.gradle/
 *.iml
+
+# Firebase Secrets
+serviceAccountKey.json
+google-services.json
+frontend/android/app/google-services.json
+
+.gradle/
 .idea/
 .vscode/

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, ArrowLeft, Loader2, Mail, BadgeCheck } from 'lucide-react';
+import { Users, Plus, ArrowLeft, Loader2, Mail, BadgeCheck, Trash2 } from 'lucide-react';
 
 function UsersManager() {
   const navigate = useNavigate();
@@ -64,6 +64,23 @@ function UsersManager() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Eliminar este usuario permanentemente? El sistema bloqueará la acción si tiene historial operativo.')) return;
+    try {
+      const token = localStorage.getItem('mtto_token');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const res = await fetch(`${apiUrl}/api/users/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al eliminar usuario');
+      fetchUsers();
+    } catch(e) {
+      alert(e.message);
+    }
+  };
+
   return (
     <div style={{ padding: '2rem', minHeight: '100vh', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -89,6 +106,7 @@ function UsersManager() {
                 <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Identificación</th>
                 <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Rol / Especialidad</th>
                 <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>ID Sistema</th>
+                <th style={{ padding: '1rem 1.5rem', width: '80px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -105,11 +123,16 @@ function UsersManager() {
                     {u.specialty && <span style={{ marginLeft: '0.5rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>{u.specialty}</span>}
                   </td>
                   <td style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: 'monospace' }}>{u.id}</td>
+                  <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
+                    <button onClick={() => handleDelete(u.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '0.4rem 0.6rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Eliminar Usuario">
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan="3" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay usuarios en la empresa</td>
+                  <td colSpan="4" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay usuarios en la empresa</td>
                 </tr>
               )}
             </tbody>

@@ -58,4 +58,40 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getTenantUsers, createUser };
+const updateFCMToken = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const { fcmToken } = req.body;
+    if (!fcmToken) return res.status(400).json({ error: 'Falta fcmToken' });
+
+    await prisma.user.update({
+      where: { id },
+      data: { fcmToken }
+    });
+
+    res.json({ message: 'Token de notificaciones actualizado' });
+  } catch(e) {
+    res.status(500).json({ error: 'Fallo al actualizar token', details: e.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { id: target_id } = req.params;
+    const { tenant_id } = req.user;
+
+    const hasReports = await prisma.faultReport.findFirst({ where: { driver_id: target_id }});
+    const hasWorkOrders = await prisma.workOrder.findFirst({ where: { technician_id: target_id }});
+
+    if (hasReports || hasWorkOrders) {
+      return res.status(400).json({ error: 'No se puede eliminar un usuario con historial (reportes/órdenes operativas).' });
+    }
+
+    await prisma.user.delete({ where: { id: target_id, tenant_id }});
+    res.json({ message: 'Usuario eliminado exitosamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Fallo al eliminar', details: err.message });
+  }
+};
+
+module.exports = { getTenantUsers, createUser, updateFCMToken, deleteUser };

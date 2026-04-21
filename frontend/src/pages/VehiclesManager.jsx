@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Truck, Plus, ArrowLeft, Loader2, Gauge } from 'lucide-react';
+import { Truck, Plus, ArrowLeft, Loader2, Gauge, Trash2 } from 'lucide-react';
 
 function VehiclesManager() {
   const navigate = useNavigate();
@@ -64,6 +64,23 @@ function VehiclesManager() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Eliminar este vehículo de forma permanente? El sistema bloqueará la acción si tiene historial operativo.')) return;
+    try {
+      const token = localStorage.getItem('mtto_token');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const res = await fetch(`${apiUrl}/api/vehicles/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al eliminar vehículo');
+      fetchVehicles();
+    } catch(e) {
+      alert(e.message);
+    }
+  };
+
   return (
     <div style={{ padding: '2rem', minHeight: '100vh', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -90,6 +107,7 @@ function VehiclesManager() {
                 <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Marca / Modelo</th>
                 <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Estado</th>
                 <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Reportes Activos</th>
+                <th style={{ padding: '1rem 1.5rem', width: '80px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -105,11 +123,16 @@ function VehiclesManager() {
                   <td style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>
                     {v.faultReports?.length || 0} Fallas
                   </td>
+                  <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
+                    <button onClick={() => handleDelete(v.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '0.4rem 0.6rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Eliminar Vehículo">
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {vehicles.length === 0 && (
                 <tr>
-                  <td colSpan="4" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay vehículos registrados en la flota.</td>
+                  <td colSpan="5" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay vehículos registrados en la flota.</td>
                 </tr>
               )}
             </tbody>

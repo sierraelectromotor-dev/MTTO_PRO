@@ -1,4 +1,5 @@
 const prisma = require('../config/database');
+const { sendPushNotification } = require('../config/firebase');
 
 const getTasks = async (req, res) => {
   try {
@@ -55,6 +56,11 @@ const createWorkOrder = async (req, res) => {
       where: { id: report_id },
       data: { status: 'EN_REPARACION' }
     });
+
+    const tech = await prisma.user.findUnique({ where: { id: technician_id }, select: { fcmToken: true } });
+    if (tech && tech.fcmToken) {
+      await sendPushNotification(tech.fcmToken, 'Nueva Orden de Trabajo', 'Se te ha asignado un nuevo vehículo para revisión.');
+    }
 
     res.status(201).json({ message: 'Orden creada exitosamente', data: newOrder });
   } catch (error) {
@@ -163,6 +169,12 @@ const updateWorkOrder = async (req, res) => {
         where: { id: order.report_id },
         data: { status: 'CONVERTIDO' }
       });
+
+      const reportData = await prisma.faultReport.findUnique({ where: { id: order.report_id }, include: { vehicle: true }});
+      const admin = await prisma.user.findFirst({ where: { tenant_id, role: 'ADMIN_EMPRESA' }, select: { fcmToken: true } });
+      if (admin && admin.fcmToken && reportData) {
+        await sendPushNotification(admin.fcmToken, 'Reparación Terminada', `El técnico ha terminado el mantenimiento del vehículo ${reportData.vehicle.plate}.`);
+      }
     }
 
     await prisma.workOrderLog.create({
@@ -274,6 +286,11 @@ const approvePartsForOrder = async (req, res) => {
       }
     });
 
+    const almacenes = await prisma.user.findMany({ where: { tenant_id, role: 'ALMACENISTA' }, select: { fcmToken: true } });
+    for (const alm of almacenes) {
+      if (alm.fcmToken) await sendPushNotification(alm.fcmToken, 'Repuestos Aprobados', 'Hay una nueva lista de repuestos esperando empacado y despacho.');
+    }
+
     res.json({ message: 'Lista enviada a almacén' });
   } catch (error) {
     res.status(500).json({ error: 'Fallo al aprobar', details: error.message });
@@ -337,6 +354,11 @@ const dispatchParts = async (req, res) => {
         user_id
       }
     });
+
+    const orderData = await prisma.workOrder.findUnique({ where: { id: order_id }, select: { technician: { select: { fcmToken: true } } }});
+    if (orderData && orderData.technician && orderData.technician.fcmToken) {
+      await sendPushNotification(orderData.technician.fcmToken, 'Repuestos en Ventanilla', 'Almacén tiene listos los repuestos empacados de tu orden.');
+    }
 
     res.json({ message: 'Técnico notificado' });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Mail, Lock, LogIn, HardHat } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { setupPushNotifications } from '../utils/pushSetup';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -38,8 +39,12 @@ function Login() {
       localStorage.setItem('mtto_token', data.token);
       localStorage.setItem('mtto_user', JSON.stringify(data.user));
       
+      try { await setupPushNotifications(); } catch(e){ console.error(e) }
+
       const userRole = data.user.role;
-      if (userRole === 'SUPERADMIN' || userRole === 'ADMIN_EMPRESA') {
+      if (userRole === 'SUPERADMIN') {
+        navigate('/superadmin-dashboard');
+      } else if (userRole === 'ADMIN_EMPRESA') {
         navigate('/admin-dashboard');
       } else if (userRole === 'CONDUCTOR') {
         navigate('/driver-dashboard');
