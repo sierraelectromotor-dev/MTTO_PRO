@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Loader2, Wrench, CheckCircle, Package, Send, ArrowRight, BookOpen, Plus, Trash2 } from 'lucide-react';
+import { App } from '@capacitor/app';
 
 function TechnicianDashboard() {
   const navigate = useNavigate();
@@ -45,12 +46,27 @@ function TechnicianDashboard() {
     setUser(parsedUser);
     fetchData();
 
-    // Live Updates: Refresh every 15 seconds
+    // Refresh when app comes back to foreground (e.g. after clicking notification)
+    const appStateListener = App.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) {
+        console.log('App active - Refreshing data...');
+        fetchData(true);
+      }
+    });
+
+    // Handle manual window focus (for web/emulator testing)
+    window.addEventListener('focus', () => fetchData(true));
+
+    // Live Updates: Refresh every 30 seconds (longer interval since we have foreground refresh)
     const interval = setInterval(() => {
       fetchData(true);
-    }, 15000);
+    }, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      appStateListener.remove();
+      window.removeEventListener('focus', () => fetchData(true));
+    };
   }, [navigate]);
 
   const fetchData = async (isSilent = false) => {

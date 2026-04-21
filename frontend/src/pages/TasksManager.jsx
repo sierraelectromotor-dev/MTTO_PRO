@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Loader2, PlayCircle, PlusCircle, Package, Trash2, CheckCircle, AlertOctagon } from 'lucide-react';
+import { App } from '@capacitor/app';
 
 function TasksManager() {
   const navigate = useNavigate();
@@ -33,12 +34,20 @@ function TasksManager() {
   useEffect(() => {
     fetchData();
 
-    // Polling every 20 seconds for Admin
+    // Polling every 30 seconds for Admin
     const interval = setInterval(() => {
       fetchData(true);
-    }, 20000);
+    }, 30000);
 
-    return () => clearInterval(interval);
+    // Refresh when app comes back to foreground
+    const appStateListener = App.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) fetchData(true);
+    });
+
+    return () => {
+      clearInterval(interval);
+      appStateListener.remove();
+    };
   }, []);
 
   const fetchData = async (isSilent = false) => {

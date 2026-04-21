@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, AlertTriangle, Plus, Loader2 } from 'lucide-react';
+import { LogOut, Loader2, Plus, AlertTriangle, CheckCircle2, History, Car, ArrowRight, User } from 'lucide-react';
+import { App } from '@capacitor/app';
 
 function DriverDashboard() {
   const navigate = useNavigate();
@@ -27,6 +28,21 @@ function DriverDashboard() {
     }
     setUser(parsedUser);
     fetchData();
+
+    // Polling every 30 seconds
+    const interval = setInterval(() => {
+      fetchData(true);
+    }, 30000);
+
+    // Refresh when app comes back to foreground
+    const appStateListener = App.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) fetchData(true);
+    });
+
+    return () => {
+      clearInterval(interval);
+      appStateListener.remove();
+    };
   }, [navigate]);
 
   const fetchData = async () => {

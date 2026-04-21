@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Loader2, Package, Check, X, Bell, Truck, History, Info, AlertTriangle } from 'lucide-react';
+import { App } from '@capacitor/app';
 
 function WarehouseDashboard() {
   const navigate = useNavigate();
@@ -24,9 +25,17 @@ function WarehouseDashboard() {
 
     const interval = setInterval(() => {
       fetchData(true);
-    }, 10000);
+    }, 30000);
 
-    return () => clearInterval(interval);
+    // Refresh when app comes back to foreground
+    const appStateListener = App.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) fetchData(true);
+    });
+
+    return () => {
+      clearInterval(interval);
+      appStateListener.remove();
+    };
   }, [navigate]);
 
   const fetchData = async (isSilent = false) => {

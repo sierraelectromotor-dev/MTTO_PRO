@@ -18,6 +18,16 @@ export const setupPushNotifications = async () => {
     // Also request local notification permissions for foreground heads-up
     await LocalNotifications.requestPermissions();
 
+    // Create the default channel for Android
+    await PushNotifications.createChannel({
+      id: 'default',
+      name: 'Default',
+      description: 'Canal por defecto para notificaciones',
+      importance: 5,
+      visibility: 1,
+      vibration: true
+    });
+
     if (permStatus.receive !== 'granted') {
       console.warn('Push notification permissions denied');
       return;
