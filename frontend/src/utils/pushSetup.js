@@ -1,4 +1,5 @@
 import { PushNotifications } from '@capacitor/push-notifications';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
 
 export const setupPushNotifications = async () => {
@@ -8,10 +9,15 @@ export const setupPushNotifications = async () => {
   }
 
   try {
+    // Basic permissions for Android 13+
     let permStatus = await PushNotifications.checkPermissions();
     if (permStatus.receive === 'prompt') {
       permStatus = await PushNotifications.requestPermissions();
     }
+    
+    // Also request local notification permissions for foreground heads-up
+    await LocalNotifications.requestPermissions();
+
     if (permStatus.receive !== 'granted') {
       console.warn('Push notification permissions denied');
       return;
@@ -35,12 +41,20 @@ export const setupPushNotifications = async () => {
       }
     });
 
-    PushNotifications.addListener('registrationError', (error) => {
-      console.error('Error on push registration: ', error);
-    });
-
-    PushNotifications.addListener('pushNotificationReceived', (notification) => {
-      console.log('Push received: ', notification);
+    PushNotifications.addListener('pushNotificationReceived', async (notification) => {
+      console.log('Push received in foreground: ', notification);
+      
+      // Force a Local Notification so it appears even with the app open
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: notification.title || 'Nueva Notificación',
+            body: notification.body || '',
+            id: new Date().getTime(),
+            extra: notification.data
+          }
+        ]
+      });
     });
 
     PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
