@@ -84,7 +84,7 @@ function AdminDashboard() {
         </div>
         <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '1rem 0.5rem', borderRadius: '14px', textAlign: 'center' }}>
           <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f59e0b' }}>{fetchingStats ? '...' : stats.inServiceCount}</div>
-          <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>En Taller</div>
+          <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>En Progreso</div>
         </div>
         <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem 0.5rem', borderRadius: '14px', textAlign: 'center' }}>
           <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#10b981' }}>{fetchingStats ? '...' : stats.totalVehicles}</div>
