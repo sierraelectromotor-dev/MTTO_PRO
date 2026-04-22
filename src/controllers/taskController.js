@@ -9,7 +9,7 @@ const getTasks = async (req, res) => {
       where: { tenant_id },
       include: {
         vehicle: true,
-        driver: { select: { email: true } }
+        driver: { select: { email: true, name: true } }
       }
     });
 
@@ -30,6 +30,26 @@ const getTasks = async (req, res) => {
     res.status(200).json({ faultReports, workOrders });
   } catch (error) {
     res.status(500).json({ error: 'Fallo al obtener tareas', details: error.message });
+  }
+};
+
+const getStats = async (req, res) => {
+  try {
+    const tenant_id = req.user.tenant_id;
+    
+    const [totalVehicles, reportedCount, inServiceCount] = await Promise.all([
+      prisma.vehicle.count({ where: { tenant_id } }),
+      prisma.faultReport.count({ where: { tenant_id, status: 'PENDIENTE' } }),
+      prisma.workOrder.count({ where: { tenant_id, NOT: { status: { contains: 'TERMINADA' } } } })
+    ]);
+
+    res.json({
+      totalVehicles,
+      reportedCount,
+      inServiceCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Fallo al obtener estadísticas', details: error.message });
   }
 };
 
@@ -424,5 +444,6 @@ module.exports = {
   getTasks, createWorkOrder, getDriverReports, createFaultReport, 
   getTechnicianOrders, updateWorkOrder,
   requestParts, deleteRequestedPart, approvePartsForOrder,
-  getWarehouseRequests, updatePartStatus, dispatchParts, deliverParts
+  getWarehouseRequests, updatePartStatus, dispatchParts, deliverParts,
+  getStats
 };

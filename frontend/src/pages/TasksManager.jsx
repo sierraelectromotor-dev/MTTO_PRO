@@ -152,31 +152,63 @@ function TasksManager() {
   };
 
   return (
-    <div style={{ padding: '2rem', minHeight: '100vh', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button onClick={() => navigate('/admin-dashboard')} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '0.5rem', borderRadius: '8px' }}>
-            <ArrowLeft size={24} />
-          </button>
-          <FileText size={32} color="var(--primary)" />
-          <h1 style={{ fontSize: '1.75rem' }}>Gestión Operativa</h1>
-          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '1rem' }}>
-            <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>v1.1-build-sync</span>
-            <span style={{ fontSize: '0.5rem', color: '#10b981', cursor: 'pointer' }} onClick={() => alert(`Total Reports: ${reports.length}\nTotal Orders: ${orders.length}\nToken: ${localStorage.getItem('mtto_token') ? 'YES' : 'NO'}`)}>
-              API: {import.meta.env.VITE_API_URL || 'Localh:3005'} [VER INFO]
-            </span>
+    <div style={{ padding: '1rem', minHeight: '100vh', width: '100%', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
+      <header style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button onClick={() => navigate('/admin-dashboard')} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: '0.5rem', marginLeft: '-0.5rem' }}>
+              <ArrowLeft size={24} />
+            </button>
+            <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Gestión Operativa</h1>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>v1.1-build-sync</div>
           </div>
         </div>
       </header>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-        <button onClick={() => setActiveTab('ESPERANDO')} style={{ flex: 1, padding: '1rem', background: activeTab === 'ESPERANDO' ? 'var(--primary)' : 'var(--surface-color)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold' }}>
-          Reportes Pendientes
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr', 
+        gap: '0.5rem', 
+        marginBottom: '1.5rem' 
+      }}>
+        <button onClick={() => setActiveTab('ESPERANDO')} style={{ 
+          padding: '0.75rem', 
+          background: activeTab === 'ESPERANDO' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', 
+          color: 'white', 
+          border: '1px solid ' + (activeTab === 'ESPERANDO' ? 'var(--primary)' : 'var(--border-color)'), 
+          borderRadius: '10px', 
+          fontWeight: 'bold',
+          fontSize: '0.85rem'
+        }}>
+          Reportes
         </button>
-        <button onClick={() => setActiveTab('ESPERANDO_REPUESTOS')} style={{ flex: 1, padding: '1rem', background: activeTab === 'ESPERANDO_REPUESTOS' ? '#a855f7' : 'var(--surface-color)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-          <Package size={18} /> Aprobación Repuestos
+        <button onClick={() => setActiveTab('ESPERANDO_REPUESTOS')} style={{ 
+          padding: '0.75rem', 
+          background: activeTab === 'ESPERANDO_REPUESTOS' ? '#a855f7' : 'rgba(255,255,255,0.05)', 
+          color: 'white', 
+          border: '1px solid ' + (activeTab === 'ESPERANDO_REPUESTOS' ? '#a855f7' : 'var(--border-color)'), 
+          borderRadius: '10px', 
+          fontWeight: 'bold',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.4rem'
+        }}>
+          <Package size={16} /> Repuestos
         </button>
-        <button onClick={() => setActiveTab('ORDENES')} style={{ flex: 1, padding: '1rem', background: activeTab === 'ORDENES' ? 'var(--primary)' : 'var(--surface-color)', color: 'white', border: '1px solid var(--border-color)', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold' }}>
+        <button onClick={() => setActiveTab('ORDENES')} style={{ 
+          gridColumn: 'span 2',
+          padding: '0.75rem', 
+          background: activeTab === 'ORDENES' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', 
+          color: 'white', 
+          border: '1px solid ' + (activeTab === 'ORDENES' ? 'var(--primary)' : 'var(--border-color)'), 
+          borderRadius: '10px', 
+          fontWeight: 'bold',
+          fontSize: '0.85rem'
+        }}>
           Monitor General
         </button>
       </div>
@@ -190,27 +222,64 @@ function TasksManager() {
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="loading-spinner" color="var(--primary)" size={48} /></div>
       ) : (
-        <div style={{ background: 'var(--surface-color)', borderRadius: '16px', border: '1px solid var(--border-color)', backdropFilter: 'blur(16px)', padding: '1.5rem' }}>
+        <div style={{ background: 'var(--surface-color)', borderRadius: '16px', border: '1px solid var(--border-color)', backdropFilter: 'blur(16px)', padding: '1rem' }}>
           
           {/* TAB: REPORTES */}
           {activeTab === 'ESPERANDO' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {reports.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No hay reportes de fallas.</p>}
-              {reports.map(r => (
-                <div key={r.id} style={{ padding: '1.25rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '12px', opacity: r.status === 'PENDIENTE' ? 1 : 0.6 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <strong style={{ fontSize: '1rem', color: r.status === 'PENDIENTE' ? '#f59e0b' : '#3b82f6' }}>{r.status === 'PENDIENTE' ? 'NUEVA FALLA' : r.status.replace(/_/g, ' ')}</strong>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{r.createdAt ? new Date(r.createdAt).toLocaleString() : 'No date'}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
+              {reports.filter(r => r.status === 'PENDIENTE').length === 0 && (
+                <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No hay reportes de fallas pendientes.</p>
+              )}
+              {reports.filter(r => r.status === 'PENDIENTE').map(r => (
+                <div key={r.id} style={{ 
+                  padding: '1rem', 
+                  background: 'rgba(0,0,0,0.2)', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '12px',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  overflowWrap: 'anywhere'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', gap: '0.5rem' }}>
+                    <strong style={{ fontSize: '0.85rem', color: '#f59e0b', whiteSpace: 'nowrap' }}>NUEVA FALLA</strong>
+                    <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', textAlign: 'right' }}>{r.createdAt ? new Date(r.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : ''}</span>
                   </div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>{r.vehicle?.plate || 'S/P'} - {r.vehicle?.brand || 'Genérico'}</div>
-                  <p style={{ color: 'var(--text-main)', fontSize: '0.9rem', margin: '0.5rem 0' }}>"{r.description || 'Sin descripción'}"</p>
-                  {r.system_affected && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600, background: 'rgba(239,68,68,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{r.system_affected.replace('_', ' ')}</span>}
+                  <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'white', marginBottom: '0.4rem' }}>{r.vehicle?.plate || 'S/P'} - {r.vehicle?.brand || ''}</div>
+                  <p style={{ color: 'var(--text-main)', fontSize: '0.875rem', margin: '0.4rem 0', lineHeight: '1.3' }}>"{r.description || 'Sin descripción'}"</p>
+                  {r.system_affected && (
+                    <span style={{ 
+                      display: 'inline-block',
+                      color: '#ef4444', 
+                      fontSize: '0.65rem', 
+                      fontWeight: 600, 
+                      background: 'rgba(239,68,68,0.1)', 
+                      padding: '0.15rem 0.4rem', 
+                      borderRadius: '4px',
+                      marginTop: '0.4rem',
+                      textTransform: 'uppercase'
+                    }}>{r.system_affected.replace('_', ' ')}</span>
+                  )}
                   
-                  <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>De: {r.driver?.name || r.driver?.email || 'Desconocido'}</span>
-                      {r.status === 'PENDIENTE' && (
-                        <button onClick={() => { setSelectedReportId(r.id); setShowOrderModal(true); }} style={{ padding: '0.5rem 1rem', background: 'transparent', color: '#10b981', border: '1px solid #10b981', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}>Asignar</button>
-                      )}
+                  <div style={{ 
+                    marginTop: '0.75rem', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    gap: '0.6rem',
+                    borderTop: '1px solid rgba(255,255,255,0.05)', 
+                    paddingTop: '0.75rem' 
+                  }}>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>De: <strong style={{ color: 'white' }}>{r.driver?.name || r.driver?.email || 'Desconocido'}</strong></div>
+                      <button onClick={() => { setSelectedReportId(r.id); setShowOrderModal(true); }} style={{ 
+                        width: '100%',
+                        padding: '0.75rem', 
+                        background: 'linear-gradient(135deg, #10b981, #059669)', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '8px', 
+                        cursor: 'pointer', 
+                        fontSize: '0.9rem', 
+                        fontWeight: 'bold' 
+                      }}>Asignar Técnico</button>
                   </div>
                 </div>
               ))}
@@ -251,25 +320,29 @@ function TasksManager() {
                     {pendingParts.length > 0 && (
                       <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '8px', padding: '1rem' }}>
                         <h4 style={{ color: 'white', marginBottom: '1rem', fontSize: '0.95rem' }}>Lista de Solicitud (Por Revisar):</h4>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                          <tbody>
-                            {pendingParts.map(p => (
-                              <tr key={p.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                <td style={{ padding: '0.5rem', color: 'white', width: '50px' }}>{p.quantity}x</td>
-                                <td style={{ padding: '0.5rem', color: 'var(--text-main)' }}>{p.name}</td>
-                                <td style={{ padding: '0.5rem', textAlign: 'right' }}>
-                                  <button onClick={() => handleDeletePart(p.id)} style={{ padding: '0.4rem', background: 'transparent', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', cursor: 'pointer' }} title="Rechazar/Eliminar">
-                                    <Trash2 size={16} />
-                                  </button>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {pendingParts.map(p => (
+                            <div key={p.id} style={{ 
+                              display: 'flex', 
+                              justifyContent: 'space-between', 
+                              alignItems: 'center', 
+                              background: 'rgba(255,255,255,0.03)', 
+                              padding: '0.5rem 0.75rem', 
+                              borderRadius: '8px' 
+                            }}>
+                              <div style={{ color: 'white', fontSize: '0.9rem' }}>
+                                <span style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>{p.quantity}x</span> {p.name}
+                              </div>
+                              <button onClick={() => handleDeletePart(p.id)} style={{ padding: '0.4rem', background: 'transparent', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', cursor: 'pointer' }}>
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                         
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                          <button onClick={() => handleApprovePartsList(o.id)} style={{ padding: '0.75rem 1.5rem', background: '#a855f7', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <CheckCircle size={18} /> Aprobar Lista hacia Almacén
+                        <div style={{ marginTop: '1.25rem' }}>
+                          <button onClick={() => handleApprovePartsList(o.id)} style={{ width: '100%', padding: '0.85rem', background: '#a855f7', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                            <CheckCircle size={18} /> Aprobar Lista
                           </button>
                         </div>
                       </div>
@@ -286,22 +359,49 @@ function TasksManager() {
 
           {/* TAB: MONITOR */}
           {activeTab === 'ORDENES' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
               {orders.map(o => (
-                <div key={o.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <strong style={{ color: 'white' }}>{o.report?.vehicle?.plate}</strong>
-                      <span style={{ fontSize: '0.65rem', fontWeight: 'bold', padding: '0.15rem 0.5rem', borderRadius: '4px', background: o.status.includes('TERMINADA') ? 'rgba(16,185,129,0.2)' : o.status === 'ESPERANDO_REPUESTOS' ? 'rgba(168,85,247,0.2)' : 'rgba(59,130,246,0.2)', color: o.status.includes('TERMINADA') ? '#10b981' : o.status === 'ESPERANDO_REPUESTOS' ? '#d8b4fe' : '#60a5fa' }}>
+                <div key={o.id} style={{ 
+                  padding: '1rem', 
+                  background: 'rgba(255,255,255,0.02)', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '12px', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  gap: '1rem'
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <strong style={{ color: 'white' }}>{o.report?.vehicle?.plate || 'S/P'}</strong>
+                      <span style={{ 
+                        fontSize: '0.6rem', 
+                        fontWeight: 'bold', 
+                        padding: '0.15rem 0.4rem', 
+                        borderRadius: '4px', 
+                        background: o.status.includes('TERMINADA') ? 'rgba(16,185,129,0.2)' : o.status === 'ESPERANDO_REPUESTOS' ? 'rgba(168,85,247,0.2)' : 'rgba(59,130,246,0.2)', 
+                        color: o.status.includes('TERMINADA') ? '#10b981' : o.status === 'ESPERANDO_REPUESTOS' ? '#d8b4fe' : '#60a5fa' 
+                      }}>
                         {o.status.replace(/_/g, ' ')}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                      {o.technician?.name || o.technician?.email} • {new Date(o.createdAt).toLocaleString()}
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {o.technician?.name || o.technician?.email} • {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : ''}
                     </div>
                   </div>
-                  <button onClick={() => { setSelectedOrderLogs(o.logs); setShowHistoryModal(true); }} style={{ padding: '0.4rem 0.75rem', background: 'transparent', color: 'var(--text-muted)', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem' }}>
-                    Ver Historial
+                  <button onClick={() => { setSelectedOrderLogs(o.logs); setShowHistoryModal(true); }} style={{ 
+                    padding: '0.5rem', 
+                    background: 'transparent', 
+                    color: 'var(--text-muted)', 
+                    border: '1px solid var(--border-color)', 
+                    borderRadius: '8px', 
+                    cursor: 'pointer', 
+                    fontSize: '0.7rem',
+                    flexShrink: 0 
+                  }}>
+                    Historial
                   </button>
                 </div>
               ))}
@@ -312,8 +412,8 @@ function TasksManager() {
 
       {/* CREATE ORDER MODAL */}
       {showOrderModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', zIndex: 100 }}>
-          <div className="login-container" style={{ margin: 0, width: '100%', maxWidth: '420px', borderTop: '4px solid #10b981' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', zIndex: 100, backdropFilter: 'blur(4px)' }}>
+          <div className="login-container" style={{ margin: 0, width: '100%', maxWidth: '420px', borderTop: '4px solid #10b981', background: '#1a1d24', opacity: 1 }}>
             <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>Asignar Técnico</h2>
             <form onSubmit={handleCreateOrder}>
               <div className="input-group">

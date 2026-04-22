@@ -99,44 +99,71 @@ function UsersManager() {
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="loading-spinner" color="var(--primary)" size={48} /></div>
       ) : (
-        <div style={{ background: 'var(--surface-color)', borderRadius: '16px', border: '1px solid var(--border-color)', backdropFilter: 'blur(16px)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid var(--border-color)' }}>
-                <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Identificación</th>
-                <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Rol / Especialidad</th>
-                <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>ID Sistema</th>
-                <th style={{ padding: '1rem 1.5rem', width: '80px' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map(u => (
-                <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td style={{ padding: '1rem 1.5rem', fontWeight: 500 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Mail size={16} color="var(--text-muted)"/> {u.email}
-                    </div>
-                    {u.name && <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{u.name}</div>}
-                  </td>
-                  <td style={{ padding: '1rem 1.5rem' }}>
-                    <span style={{ padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 'bold', background: u.role === 'ADMIN_EMPRESA' ? 'rgba(236,72,153,0.2)' : u.role === 'TECNICO' ? 'rgba(245,158,11,0.2)' : 'rgba(99,102,241,0.2)', color: u.role === 'ADMIN_EMPRESA' ? '#ec4899' : u.role === 'TECNICO' ? '#f59e0b' : '#818cf8' }}>{u.role}</span>
-                    {u.specialty && <span style={{ marginLeft: '0.5rem', color: 'var(--text-muted)', fontSize: '0.75rem' }}>{u.specialty}</span>}
-                  </td>
-                  <td style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)', fontSize: '0.8rem', fontFamily: 'monospace' }}>{u.id}</td>
-                  <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                    <button onClick={() => handleDelete(u.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '0.4rem 0.6rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Eliminar Usuario">
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {users.length === 0 && (
-                <tr>
-                  <td colSpan="4" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay usuarios en la empresa</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
+          {users.map(u => (
+            <div key={u.id} style={{ 
+              background: 'var(--surface-color)', 
+              borderRadius: '16px', 
+              border: '1px solid var(--border-color)', 
+              padding: '1.25rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                    <Mail size={16} color="var(--primary)"/> 
+                    <strong style={{ fontSize: '1rem', color: 'white', wordBreak: 'break-all' }}>{u.email}</strong>
+                  </div>
+                  {u.name && <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 500 }}>{u.name}</div>}
+                </div>
+                <button onClick={() => handleDelete(u.id)} style={{ 
+                  background: 'rgba(239, 68, 68, 0.1)', 
+                  color: '#ef4444', 
+                  border: '1px solid rgba(239, 68, 68, 0.2)', 
+                  padding: '0.5rem', 
+                  borderRadius: '10px', 
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }} title="Eliminar Usuario">
+                  <Trash2 size={18} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ 
+                  padding: '0.25rem 0.75rem', 
+                  borderRadius: '999px', 
+                  fontSize: '0.7rem', 
+                  fontWeight: 'bold', 
+                  background: u.role === 'ADMIN_EMPRESA' ? 'rgba(236,72,153,0.2)' : u.role === 'TECNICO' ? 'rgba(245,158,11,0.2)' : 'rgba(99,102,241,0.2)', 
+                  color: u.role === 'ADMIN_EMPRESA' ? '#ec4899' : u.role === 'TECNICO' ? '#f59e0b' : '#818cf8',
+                  textTransform: 'uppercase'
+                }}>
+                  {u.role.replace('_', ' ')}
+                </span>
+                {u.specialty && (
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+                    {u.specialty}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem' }}>
+                <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                  ID: {u.id}
+                </div>
+              </div>
+            </div>
+          ))}
+          {users.length === 0 && (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.1)', borderRadius: '16px' }}>
+              No hay usuarios registrados.
+            </div>
+          )}
         </div>
       )}
 

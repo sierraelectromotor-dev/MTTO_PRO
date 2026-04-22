@@ -99,44 +99,64 @@ function VehiclesManager() {
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="loading-spinner" color="#ec4899" size={48} /></div>
       ) : (
-        <div style={{ background: 'var(--surface-color)', borderRadius: '16px', border: '1px solid var(--border-color)', backdropFilter: 'blur(16px)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid var(--border-color)' }}>
-                <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Placa</th>
-                <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Marca / Modelo</th>
-                <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Estado</th>
-                <th style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>Reportes Activos</th>
-                <th style={{ padding: '1rem 1.5rem', width: '80px' }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {vehicles.map(v => (
-                <tr key={v.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td style={{ padding: '1rem 1.5rem', fontWeight: 'bold', letterSpacing: '2px' }}>{v.plate.toUpperCase()}</td>
-                  <td style={{ padding: '1rem 1.5rem' }}>{v.brand} <span style={{ color: 'var(--text-muted)' }}>{v.model}</span></td>
-                  <td style={{ padding: '1rem 1.5rem' }}>
-                    <span style={{ padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 'bold', background: v.status === 'TALLER' ? 'rgba(245,158,11,0.2)' : v.status === 'PARADA_CRITICA' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', color: v.status === 'TALLER' ? '#f59e0b' : v.status === 'PARADA_CRITICA' ? '#ef4444' : '#10b981' }}>
-                      {v.status.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td style={{ padding: '1rem 1.5rem', color: 'var(--text-muted)' }}>
-                    {v.faultReports?.length || 0} Fallas
-                  </td>
-                  <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
-                    <button onClick={() => handleDelete(v.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '0.4rem 0.6rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Eliminar Vehículo">
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {vehicles.length === 0 && (
-                <tr>
-                  <td colSpan="5" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>No hay vehículos registrados en la flota.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
+          {vehicles.map(v => (
+            <div key={v.id} style={{ 
+              background: 'var(--surface-color)', 
+              borderRadius: '16px', 
+              border: '1px solid var(--border-color)', 
+              padding: '1.25rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                   <div style={{ background: 'rgba(236,72,153,0.1)', padding: '0.5rem', borderRadius: '10px' }}>
+                     <Truck size={20} color="#ec4899" />
+                   </div>
+                   <div>
+                     <div style={{ fontSize: '1.25rem', fontWeight: 'bold', letterSpacing: '2px', color: 'white' }}>{v.plate.toUpperCase()}</div>
+                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{v.brand} {v.model}</div>
+                   </div>
+                </div>
+                <button onClick={() => handleDelete(v.id)} style={{ 
+                  background: 'rgba(239, 68, 68, 0.1)', 
+                  color: '#ef4444', 
+                  border: '1px solid rgba(239, 68, 68, 0.2)', 
+                  padding: '0.5rem', 
+                  borderRadius: '10px', 
+                  cursor: 'pointer' 
+                }} title="Eliminar Vehículo">
+                  <Trash2 size={18} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '0.75rem' }}>
+                <span style={{ 
+                  padding: '0.25rem 0.75rem', 
+                  borderRadius: '999px', 
+                  fontSize: '0.7rem', 
+                  fontWeight: 'bold', 
+                  background: v.status === 'TALLER' ? 'rgba(245,158,11,0.2)' : v.status === 'PARADA_CRITICA' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)', 
+                  color: v.status === 'TALLER' ? '#f59e0b' : v.status === 'PARADA_CRITICA' ? '#ef4444' : '#10b981' 
+                }}>
+                  {v.status.replace('_', ' ')}
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                  <Gauge size={14} />
+                  {v.faultReports?.length || 0} Reportes
+                </div>
+              </div>
+            </div>
+          ))}
+          {vehicles.length === 0 && (
+            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.1)', borderRadius: '16px' }}>
+              No hay vehículos registrados en la flota.
+            </div>
+          )}
         </div>
       )}
 

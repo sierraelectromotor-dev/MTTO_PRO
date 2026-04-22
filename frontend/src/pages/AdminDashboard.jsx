@@ -20,7 +20,29 @@ function AdminDashboard() {
     }
     
     setUser(parsedUser);
+    fetchStats();
   }, [navigate]);
+
+  const [stats, setStats] = useState({ reportedCount: 0, inServiceCount: 0, totalVehicles: 0 });
+  const [fetchingStats, setFetchingStats] = useState(true);
+
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem('mtto_token');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const res = await fetch(`${apiUrl}/api/tasks/stats`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStats(data);
+      }
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    } finally {
+      setFetchingStats(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('mtto_token');
@@ -31,8 +53,8 @@ function AdminDashboard() {
   if (!user) return null;
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-color)', padding: '1rem 2rem', borderRadius: '16px', border: '1px solid var(--border-color)', backdropFilter: 'blur(16px)' }}>
+    <div style={{ width: '100%', minHeight: '100vh', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', boxSizing: 'border-box' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-color)', padding: '0.75rem 1rem', borderRadius: '16px', border: '1px solid var(--border-color)', backdropFilter: 'blur(16px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div className="logo-circle" style={{ width: '48px', height: '48px', background: 'linear-gradient(135deg, #10b981, #047857)' }}>
             <HardHat color="white" size={24} />
@@ -43,29 +65,91 @@ function AdminDashboard() {
           </div>
         </div>
         
-        <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.5)', color: '#ef4444', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}>
-          <LogOut size={18} />
+        <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#ef4444', padding: '0.4rem 0.75rem', borderRadius: '10px', cursor: 'pointer', fontSize: '0.85rem' }}>
+          <LogOut size={16} />
           Salir
         </button>
       </header>
 
-      <main style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        <div onClick={() => navigate('/admin/users')} style={{ background: 'var(--surface-color)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border-color)', transition: 'transform 0.2s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-          <Users size={32} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Personal y Usuarios</h3>
-          <p style={{ color: 'var(--text-muted)' }}>Gestiona conductores, mecánicos y usuarios administrativos de tu empresa.</p>
+      {/* MINI DASHBOARD */}
+      <section style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(3, 1fr)', 
+        gap: '0.75rem', 
+        width: '100%'
+      }}>
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '1rem 0.5rem', borderRadius: '14px', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#ef4444' }}>{fetchingStats ? '...' : stats.reportedCount}</div>
+          <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>Reportados</div>
+        </div>
+        <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '1rem 0.5rem', borderRadius: '14px', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f59e0b' }}>{fetchingStats ? '...' : stats.inServiceCount}</div>
+          <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>En Taller</div>
+        </div>
+        <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem 0.5rem', borderRadius: '14px', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#10b981' }}>{fetchingStats ? '...' : stats.totalVehicles}</div>
+          <div style={{ fontSize: '0.55rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>Flota Total</div>
+        </div>
+      </section>
+
+      <main style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+        <div onClick={() => navigate('/admin/tasks')} style={{ 
+          background: 'var(--surface-color)', 
+          padding: '1.25rem', 
+          borderRadius: '18px', 
+          border: '1px solid var(--border-color)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '1rem', 
+          cursor: 'pointer',
+          width: '100%',
+          boxSizing: 'border-box'
+        }}>
+          <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '1rem', borderRadius: '14px' }}>
+            <Wrench size={24} color="#f59e0b" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.2rem' }}>Mantenimiento</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Gestión de Reportes y Órdenes</p>
+          </div>
         </div>
 
-        <div onClick={() => navigate('/admin/vehicles')} style={{ background: 'var(--surface-color)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border-color)', transition: 'transform 0.2s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-          <Truck size={32} color="#ec4899" style={{ marginBottom: '1rem' }} />
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Flota Vehicular</h3>
-          <p style={{ color: 'var(--text-muted)' }}>Maneja el inventario de vehículos, estados y asignación a conductores.</p>
-        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', width: '100%' }}>
+          <div onClick={() => navigate('/admin/users')} style={{ 
+            background: 'var(--surface-color)', 
+            padding: '1.5rem 1rem', 
+            borderRadius: '18px', 
+            border: '1px solid var(--border-color)', 
+            cursor: 'pointer', 
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '0.75rem', borderRadius: '12px' }}>
+              <Users size={24} color="var(--primary)" />
+            </div>
+            <h4 style={{ fontSize: '1rem', fontWeight: 'bold' }}>Usuarios</h4>
+          </div>
 
-        <div onClick={() => navigate('/admin/tasks')} style={{ background: 'var(--surface-color)', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border-color)', transition: 'transform 0.2s ease', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-          <Wrench size={32} color="#f59e0b" style={{ marginBottom: '1rem' }} />
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Mantenimiento</h3>
-          <p style={{ color: 'var(--text-muted)' }}>Visualiza reportes de fallas y asigna órdenes de trabajo (O.T.) a los técnicos.</p>
+          <div onClick={() => navigate('/admin/vehicles')} style={{ 
+            background: 'var(--surface-color)', 
+            padding: '1.5rem 1rem', 
+            borderRadius: '18px', 
+            border: '1px solid var(--border-color)', 
+            cursor: 'pointer', 
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}>
+             <div style={{ background: 'rgba(236, 72, 153, 0.1)', padding: '0.75rem', borderRadius: '12px' }}>
+              <Truck size={24} color="#ec4899" />
+            </div>
+            <h4 style={{ fontSize: '1rem', fontWeight: 'bold' }}>Flota</h4>
+          </div>
         </div>
       </main>
     </div>
