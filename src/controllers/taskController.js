@@ -36,15 +36,12 @@ const getTasks = async (req, res) => {
 const getStats = async (req, res) => {
   try {
     const tenant_id = req.user.tenant_id;
-    console.log(`[DEBUG] Fetching stats for tenant_id: ${tenant_id}`);
     
     const [totalVehicles, reportedCount, inServiceCount] = await Promise.all([
       prisma.vehicle.count({ where: { tenant_id } }),
       prisma.faultReport.count({ where: { tenant_id, status: 'PENDIENTE' } }),
-      prisma.workOrder.count({ where: { tenant_id, status: { notIn: ['TERMINADA_SOLUCIONADO', 'CANCELADA'] } } })
+      prisma.workOrder.count({ where: { tenant_id, status: { notIn: ['TERMINADA', 'TERMINADA_CON_NOVEDAD'] } } })
     ]);
-
-    console.log(`[DEBUG] Stats results - Vehicles: ${totalVehicles}, Reported: ${reportedCount}, InService: ${inServiceCount}`);
 
     res.json({
       totalVehicles,
@@ -52,7 +49,6 @@ const getStats = async (req, res) => {
       inServiceCount
     });
   } catch (error) {
-    console.error(`[DEBUG] Error in getStats:`, error);
     res.status(500).json({ error: 'Fallo al obtener estadísticas', details: error.message });
   }
 };
