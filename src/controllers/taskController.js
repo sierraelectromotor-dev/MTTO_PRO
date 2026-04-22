@@ -41,7 +41,7 @@ const getStats = async (req, res) => {
     const [totalVehicles, reportedCount, inServiceCount] = await Promise.all([
       prisma.vehicle.count({ where: { tenant_id } }),
       prisma.faultReport.count({ where: { tenant_id, status: 'PENDIENTE' } }),
-      prisma.workOrder.count({ where: { tenant_id, NOT: { status: { contains: 'TERMINADA' } } } })
+      prisma.workOrder.count({ where: { tenant_id, status: { notIn: ['TERMINADA_SOLUCIONADO', 'CANCELADA'] } } })
     ]);
 
     console.log(`[DEBUG] Stats results - Vehicles: ${totalVehicles}, Reported: ${reportedCount}, InService: ${inServiceCount}`);
