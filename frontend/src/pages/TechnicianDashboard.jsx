@@ -139,14 +139,20 @@ function TechnicianDashboard() {
     try {
       const token = localStorage.getItem('mtto_token');
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
-      await fetch(`${apiUrl}/api/tasks/work-orders/${orderId}`, {
+      const res = await fetch(`${apiUrl}/api/tasks/work-orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })
       });
+      if (!res.ok) {
+         const err = await res.json();
+         throw new Error(err.error || 'Error al actualizar estado');
+      }
+      addToast('Actualizado', `Orden movida a ${newStatus.replace(/_/g, ' ')}`, 'success');
       fetchData();
     } catch (err) {
       console.error(err);
+      addToast('Error', err.message, 'error');
     }
   };
 
@@ -171,11 +177,15 @@ function TechnicianDashboard() {
       const token = localStorage.getItem('mtto_token');
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
       
+      let res;
       if (showModal.type === 'parts') {
         const validParts = partsList.filter(p => p.name.trim() !== '');
-        if (validParts.length === 0) return alert('Por favor ingresa al menos un repuesto válido.');
+        if (validParts.length === 0) {
+          setSubmitting(false);
+          return alert('Por favor ingresa al menos un repuesto válido.');
+        }
         
-        await fetch(`${apiUrl}/api/tasks/work-orders/${showModal.orderId}/parts`, {
+        res = await fetch(`${apiUrl}/api/tasks/work-orders/${showModal.orderId}/parts`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ parts: validParts })
@@ -183,24 +193,31 @@ function TechnicianDashboard() {
       } else {
         let payload = {};
         if (showModal.type === 'findings') {
-           payload = { concepts: formData.textValue, log_notes: `Registró hallazgos técnicos.` };
+          payload = { concepts: formData.textValue, log_notes: `Registró hallazgos técnicos.` };
         } else if (showModal.type === 'finalize') {
-           payload = { status: formData.statusSelection, conclusion: formData.textValue };
+          payload = { status: formData.statusSelection, conclusion: formData.textValue };
         } else if (showModal.type === 'reassign') {
-           payload = { status: 'ASIGNADA', technician_id: formData.technician_id, log_notes: `Motivo de reasignación: ${formData.textValue}` };
+          payload = { status: 'ASIGNADA', technician_id: formData.technician_id, log_notes: `Motivo de reasignación: ${formData.textValue}` };
         }
 
-        await fetch(`${apiUrl}/api/tasks/work-orders/${showModal.orderId}`, {
+        res = await fetch(`${apiUrl}/api/tasks/work-orders/${showModal.orderId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify(payload)
         });
       }
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Error en la operación');
+      }
       
+      addToast('Éxito', 'La operación se realizó correctamente', 'success');
       fetchData();
       setShowModal({ visible: false, type: '', orderId: null, existingConcepts: '' });
     } catch (err) {
       console.error(err);
+      addToast('Error', err.message, 'error');
     } finally {
       setSubmitting(false);
     }
