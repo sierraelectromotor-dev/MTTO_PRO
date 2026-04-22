@@ -11,10 +11,27 @@ import TechnicianDashboard from './pages/TechnicianDashboard';
 import WarehouseDashboard from './pages/WarehouseDashboard';
 
 function App() {
+  const getInitialRoute = () => {
+    const userStr = localStorage.getItem('mtto_user');
+    if (!userStr) return "/login";
+    
+    try {
+      const user = JSON.parse(userStr);
+      if (user.role === 'SUPERADMIN') return '/superadmin-dashboard';
+      if (user.role === 'ADMIN_EMPRESA') return '/admin-dashboard';
+      if (user.role === 'CONDUCTOR') return '/driver-dashboard';
+      if (user.role === 'TECNICO') return '/technician-dashboard';
+      if (user.role === 'ALMACENISTA') return '/warehouse-dashboard';
+    } catch(e) {
+      return "/login";
+    }
+    return "/login";
+  };
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to={getInitialRoute()} replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/superadmin-dashboard" element={<SuperadminDashboard />} />
         <Route path="/superadmin/tenants" element={<TenantsManager />} />

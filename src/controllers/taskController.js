@@ -98,8 +98,15 @@ const createFaultReport = async (req, res) => {
         tenant_id,
         status: 'PENDIENTE',
         system_affected
-      }
+      },
+      include: { vehicle: true }
     });
+
+    const admins = await prisma.user.findMany({ where: { tenant_id, role: 'ADMIN_EMPRESA' }, select: { fcmToken: true } });
+    for (const admin of admins) {
+      if (admin.fcmToken) await sendPushNotification(admin.fcmToken, 'Nuevo Reporte de Falla', `Vehículo ${newReport.vehicle.plate}: ${description}`);
+    }
+
     res.status(201).json({ message: 'Reporte creado', data: newReport });
   } catch (error) {
     res.status(500).json({ error: 'Fallo al reportar', details: error.message });
@@ -243,6 +250,12 @@ const requestParts = async (req, res) => {
         user_id
       }
     });
+
+    const orderData = await prisma.workOrder.findUnique({ where: { id: order_id }, include: { report: { include: { vehicle: true } } } });
+    const admins = await prisma.user.findMany({ where: { tenant_id, role: 'ADMIN_EMPRESA' }, select: { fcmToken: true } });
+    for (const admin of admins) {
+      if (admin.fcmToken) await sendPushNotification(admin.fcmToken, 'Aprobación de Repuestos', `Mecánico solicita repuestos para el vehículo ${orderData.report.vehicle.plate}.`);
+    }
 
     res.json({ message: 'Repuestos solicitados', data: createdParts });
   } catch (error) {

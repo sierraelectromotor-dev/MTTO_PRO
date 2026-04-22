@@ -179,20 +179,22 @@ function TasksManager() {
           
           {/* TAB: REPORTES */}
           {activeTab === 'ESPERANDO' && (
-            <div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {reports.filter(r => r.status === 'PENDIENTE').length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No hay reportes de fallas pendientes.</p>}
               {reports.filter(r => r.status === 'PENDIENTE').map(r => (
-                <div key={r.id} style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <strong style={{ fontSize: '1.1rem', color: '#f59e0b', marginBottom: '0.25rem', display: 'block' }}>Falla Reportada</strong>
-                    <div style={{ color: 'white', marginBottom: '0.25rem' }}>{r.vehicle?.plate} - {r.vehicle?.brand}</div>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '600px' }}>"{r.description}"</p>
-                    {r.system_affected && <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.25rem', fontWeight: 600 }}>[ {r.system_affected.replace('_', ' ')} ]</p>}
-                    <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', marginTop: '0.25rem' }}>Conductor: {r.driver?.name || r.driver?.email}</p>
+                <div key={r.id} style={{ padding: '1.25rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <strong style={{ fontSize: '1rem', color: '#f59e0b' }}>Nueva Falla</strong>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(r.createdAt).toLocaleString()}</span>
                   </div>
-                  <button onClick={() => { setSelectedReportId(r.id); setShowOrderModal(true); }} style={{ padding: '0.75rem 1.5rem', background: 'transparent', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold' }}>
-                    <PlusCircle size={18} /> Asignar Técnico
-                  </button>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>{r.vehicle?.plate} - {r.vehicle?.brand}</div>
+                  <p style={{ color: 'var(--text-main)', fontSize: '0.9rem', margin: '0.5rem 0' }}>"{r.description}"</p>
+                  {r.system_affected && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600, background: 'rgba(239,68,68,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{r.system_affected.replace('_', ' ')}</span>}
+                  
+                  <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>De: {r.driver?.name || r.driver?.email}</span>
+                      <button onClick={() => { setSelectedReportId(r.id); setShowOrderModal(true); }} style={{ padding: '0.5rem 1rem', background: 'transparent', color: '#10b981', border: '1px solid #10b981', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}>Asignar</button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -267,38 +269,26 @@ function TasksManager() {
 
           {/* TAB: MONITOR */}
           {activeTab === 'ORDENES' && (
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Vehículo</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Técnico</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Estado</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)' }}>Historial</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map(o => (
-                  <tr key={o.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ color: 'white', fontWeight: 'bold' }}>{o.report?.vehicle?.plate}</div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ color: 'var(--text-main)' }}>{o.technician?.name || o.technician?.email}</div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '0.25rem 0.5rem', borderRadius: '999px', background: o.status.includes('TERMINADA') ? 'rgba(16,185,129,0.2)' : o.status === 'ESPERANDO_REPUESTOS' ? 'rgba(168,85,247,0.2)' : 'rgba(59,130,246,0.2)', color: o.status.includes('TERMINADA') ? '#10b981' : o.status === 'ESPERANDO_REPUESTOS' ? '#d8b4fe' : '#60a5fa' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {orders.map(o => (
+                <div key={o.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <strong style={{ color: 'white' }}>{o.report?.vehicle?.plate}</strong>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 'bold', padding: '0.15rem 0.5rem', borderRadius: '4px', background: o.status.includes('TERMINADA') ? 'rgba(16,185,129,0.2)' : o.status === 'ESPERANDO_REPUESTOS' ? 'rgba(168,85,247,0.2)' : 'rgba(59,130,246,0.2)', color: o.status.includes('TERMINADA') ? '#10b981' : o.status === 'ESPERANDO_REPUESTOS' ? '#d8b4fe' : '#60a5fa' }}>
                         {o.status.replace(/_/g, ' ')}
                       </span>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <button onClick={() => { setSelectedOrderLogs(o.logs); setShowHistoryModal(true); }} style={{ padding: '0.5rem 1rem', background: 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}>
-                        Ver Log
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                      {o.technician?.name || o.technician?.email} • {new Date(o.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                  <button onClick={() => { setSelectedOrderLogs(o.logs); setShowHistoryModal(true); }} style={{ padding: '0.4rem 0.75rem', background: 'transparent', color: 'var(--text-muted)', border: '1px solid var(--border-color)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem' }}>
+                    Ver Historial
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       )}
