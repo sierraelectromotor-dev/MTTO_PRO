@@ -9,6 +9,7 @@ function TasksManager() {
   const [orders, setOrders] = useState([]);
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('ESPERANDO');
   
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -52,6 +53,7 @@ function TasksManager() {
 
   const fetchData = async (isSilent = false) => {
     if (!isSilent) setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('mtto_token');
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
@@ -95,6 +97,7 @@ function TasksManager() {
       }
     } catch (err) {
       console.error(err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -156,7 +159,8 @@ function TasksManager() {
             <ArrowLeft size={24} />
           </button>
           <FileText size={32} color="var(--primary)" />
-          <h1 style={{ fontSize: '1.75rem' }}>Gestión Operativa de Tareas</h1>
+          <h1 style={{ fontSize: '1.75rem' }}>Gestión Operativa</h1>
+          <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginLeft: '1rem' }}>v1.1-build-sync</span>
         </div>
       </header>
 
@@ -171,6 +175,12 @@ function TasksManager() {
           Monitor General
         </button>
       </div>
+
+      {error && (
+        <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid #ef4444', padding: '1rem', borderRadius: '12px', color: '#ef4444', marginBottom: '2rem', textAlign: 'center' }}>
+          <strong>Error de Carga:</strong> {error}
+        </div>
+      )}
 
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><Loader2 className="loading-spinner" color="var(--primary)" size={48} /></div>
