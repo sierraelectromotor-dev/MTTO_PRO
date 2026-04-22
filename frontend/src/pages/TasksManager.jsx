@@ -160,7 +160,12 @@ function TasksManager() {
           </button>
           <FileText size={32} color="var(--primary)" />
           <h1 style={{ fontSize: '1.75rem' }}>Gestión Operativa</h1>
-          <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginLeft: '1rem' }}>v1.1-build-sync</span>
+          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '1rem' }}>
+            <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>v1.1-build-sync</span>
+            <span style={{ fontSize: '0.5rem', color: '#10b981', cursor: 'pointer' }} onClick={() => alert(`Total Reports: ${reports.length}\nTotal Orders: ${orders.length}\nToken: ${localStorage.getItem('mtto_token') ? 'YES' : 'NO'}`)}>
+              API: {import.meta.env.VITE_API_URL || 'Localh:3005'} [VER INFO]
+            </span>
+          </div>
         </div>
       </header>
 
@@ -190,20 +195,22 @@ function TasksManager() {
           {/* TAB: REPORTES */}
           {activeTab === 'ESPERANDO' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {reports.filter(r => r.status === 'PENDIENTE').length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No hay reportes de fallas pendientes.</p>}
-              {reports.filter(r => r.status === 'PENDIENTE').map(r => (
-                <div key={r.id} style={{ padding: '1.25rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+              {reports.length === 0 && <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No hay reportes de fallas.</p>}
+              {reports.map(r => (
+                <div key={r.id} style={{ padding: '1.25rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '12px', opacity: r.status === 'PENDIENTE' ? 1 : 0.6 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <strong style={{ fontSize: '1rem', color: '#f59e0b' }}>Nueva Falla</strong>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{new Date(r.createdAt).toLocaleString()}</span>
+                    <strong style={{ fontSize: '1rem', color: r.status === 'PENDIENTE' ? '#f59e0b' : '#3b82f6' }}>{r.status === 'PENDIENTE' ? 'NUEVA FALLA' : r.status.replace(/_/g, ' ')}</strong>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{r.createdAt ? new Date(r.createdAt).toLocaleString() : 'No date'}</span>
                   </div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>{r.vehicle?.plate} - {r.vehicle?.brand}</div>
-                  <p style={{ color: 'var(--text-main)', fontSize: '0.9rem', margin: '0.5rem 0' }}>"{r.description}"</p>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>{r.vehicle?.plate || 'S/P'} - {r.vehicle?.brand || 'Genérico'}</div>
+                  <p style={{ color: 'var(--text-main)', fontSize: '0.9rem', margin: '0.5rem 0' }}>"{r.description || 'Sin descripción'}"</p>
                   {r.system_affected && <span style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 600, background: 'rgba(239,68,68,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{r.system_affected.replace('_', ' ')}</span>}
                   
                   <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>De: {r.driver?.name || r.driver?.email}</span>
-                      <button onClick={() => { setSelectedReportId(r.id); setShowOrderModal(true); }} style={{ padding: '0.5rem 1rem', background: 'transparent', color: '#10b981', border: '1px solid #10b981', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}>Asignar</button>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>De: {r.driver?.name || r.driver?.email || 'Desconocido'}</span>
+                      {r.status === 'PENDIENTE' && (
+                        <button onClick={() => { setSelectedReportId(r.id); setShowOrderModal(true); }} style={{ padding: '0.5rem 1rem', background: 'transparent', color: '#10b981', border: '1px solid #10b981', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold' }}>Asignar</button>
+                      )}
                   </div>
                 </div>
               ))}

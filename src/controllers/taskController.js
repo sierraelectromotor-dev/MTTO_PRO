@@ -102,9 +102,13 @@ const createFaultReport = async (req, res) => {
       include: { vehicle: true }
     });
 
-    const admins = await prisma.user.findMany({ where: { tenant_id, role: 'ADMIN_EMPRESA' }, select: { fcmToken: true } });
+    const admins = await prisma.user.findMany({ where: { tenant_id, role: 'ADMIN_EMPRESA' }, select: { email: true, fcmToken: true } });
+    console.log(`Found ${admins.length} admins to notify. Tokens:`, admins.map(a => a.fcmToken ? 'YES' : 'NO'));
     for (const admin of admins) {
-      if (admin.fcmToken) await sendPushNotification(admin.fcmToken, 'Nuevo Reporte de Falla', `Vehículo ${newReport.vehicle.plate}: ${description}`);
+      if (admin.fcmToken) {
+        console.log(`Sending New Report push to ${admin.email}...`);
+        await sendPushNotification(admin.fcmToken, 'Nuevo Reporte de Falla', `Vehículo ${newReport.vehicle.plate}: ${description}`);
+      }
     }
 
     res.status(201).json({ message: 'Reporte creado', data: newReport });
@@ -252,9 +256,13 @@ const requestParts = async (req, res) => {
     });
 
     const orderData = await prisma.workOrder.findUnique({ where: { id: order_id }, include: { report: { include: { vehicle: true } } } });
-    const admins = await prisma.user.findMany({ where: { tenant_id, role: 'ADMIN_EMPRESA' }, select: { fcmToken: true } });
+    const admins = await prisma.user.findMany({ where: { tenant_id, role: 'ADMIN_EMPRESA' }, select: { email: true, fcmToken: true } });
+    console.log(`Found ${admins.length} admins for parts approval notification.`);
     for (const admin of admins) {
-      if (admin.fcmToken) await sendPushNotification(admin.fcmToken, 'Aprobación de Repuestos', `Mecánico solicita repuestos para el vehículo ${orderData.report.vehicle.plate}.`);
+      if (admin.fcmToken) {
+        console.log(`Sending Parts Approval push to ${admin.email}...`);
+        await sendPushNotification(admin.fcmToken, 'Aprobación de Repuestos', `Mecánico solicita repuestos para el vehículo ${orderData.report.vehicle.plate}.`);
+      }
     }
 
     res.json({ message: 'Repuestos solicitados', data: createdParts });
