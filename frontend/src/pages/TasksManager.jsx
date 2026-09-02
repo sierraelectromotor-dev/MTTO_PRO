@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Loader2, PlayCircle, PlusCircle, Package, Trash2, CheckCircle, AlertOctagon } from 'lucide-react';
+import { ArrowLeft, FileText, Loader2, PlayCircle, PlusCircle, Package, Trash2, CheckCircle, AlertOctagon, MapPin, ExternalLink, RefreshCw } from 'lucide-react';
 import { App } from '@capacitor/app';
 
 function TasksManager() {
@@ -151,8 +151,10 @@ function TasksManager() {
     } catch(e) { console.error(e); }
   };
 
+  const traccarUrl = import.meta.env.VITE_TRACCAR_URL || 'http://187.77.3.156:8585/';
+
   return (
-    <div style={{ padding: '1rem', minHeight: '100vh', width: '100%', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
+    <div style={{ padding: '1rem', minHeight: '100vh', width: '100%', maxWidth: activeTab === 'MAPA' ? '1200px' : '600px', margin: '0 auto', boxSizing: 'border-box', transition: 'max-width 0.2s ease-in-out' }}>
       <header style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -200,7 +202,6 @@ function TasksManager() {
           <Package size={16} /> Repuestos
         </button>
         <button onClick={() => setActiveTab('ORDENES')} style={{ 
-          gridColumn: 'span 2',
           padding: '0.75rem', 
           background: activeTab === 'ORDENES' ? 'var(--primary)' : 'rgba(255,255,255,0.05)', 
           color: 'white', 
@@ -210,6 +211,21 @@ function TasksManager() {
           fontSize: '0.85rem'
         }}>
           Monitor General
+        </button>
+        <button onClick={() => setActiveTab('MAPA')} style={{ 
+          padding: '0.75rem', 
+          background: activeTab === 'MAPA' ? '#0284c7' : 'rgba(255,255,255,0.05)', 
+          color: 'white', 
+          border: '1px solid ' + (activeTab === 'MAPA' ? '#0284c7' : 'var(--border-color)'), 
+          borderRadius: '10px', 
+          fontWeight: 'bold',
+          fontSize: '0.85rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.4rem'
+        }}>
+          <MapPin size={16} color={activeTab === 'MAPA' ? '#ffffff' : '#38bdf8'} /> Mapa GPS
         </button>
       </div>
 
@@ -407,6 +423,56 @@ function TasksManager() {
               ))}
             </div>
           )}
+
+          {/* TAB: MAPA TRACCAR */}
+          {activeTab === 'MAPA' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <MapPin size={18} color="#38bdf8" />
+                  <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'white' }}>Telemetría GPS (Traccar)</span>
+                  <span style={{ fontSize: '0.65rem', color: '#10b981', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', padding: '0.15rem 0.5rem', borderRadius: '999px', fontWeight: 'bold' }}>EN VIVO</span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button 
+                    onClick={() => {
+                      const iframe = document.getElementById('traccar-iframe');
+                      if (iframe) iframe.src = iframe.src;
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.4rem 0.75rem', background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem' }}
+                    title="Recargar mapa">
+                    <RefreshCw size={14} /> Recargar
+                  </button>
+                  <a 
+                    href={traccarUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.4rem 0.75rem', background: '#0284c7', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'none', fontWeight: 'bold' }}>
+                    <ExternalLink size={14} /> Abrir en pestaña
+                  </a>
+                </div>
+              </div>
+
+              <div style={{ 
+                width: '100%', 
+                height: 'calc(100vh - 280px)', 
+                minHeight: '520px', 
+                borderRadius: '12px', 
+                overflow: 'hidden', 
+                background: '#0f172a', 
+                border: '1px solid var(--border-color)',
+                position: 'relative'
+              }}>
+                <iframe
+                  id="traccar-iframe"
+                  src={traccarUrl}
+                  title="Traccar GPS"
+                  style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                  allow="geolocation; camera; microphone"
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -443,8 +509,8 @@ function TasksManager() {
 
       {/* HISTORY MODAL */}
       {showHistoryModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', zIndex: 100 }}>
-          <div className="login-container" style={{ margin: 0, width: '100%', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', zIndex: 100, backdropFilter: 'blur(4px)' }}>
+          <div className="login-container" style={{ margin: 0, width: '100%', maxWidth: '600px', maxHeight: '80vh', overflowY: 'auto', background: '#1a1d24', opacity: 1 }}>
             <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><PlayCircle color="#3b82f6" /> Trazabilidad de la Orden</h2>
             <div style={{ position: 'relative', paddingLeft: '1.5rem' }}>
               <div style={{ position: 'absolute', top: '0', bottom: '0', left: '0', width: '2px', background: 'rgba(255,255,255,0.1)' }}></div>

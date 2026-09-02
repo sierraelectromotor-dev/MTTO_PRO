@@ -111,8 +111,25 @@ function TechnicianDashboard() {
         );
       }
 
-      setOrders(ordersData);
-      prevOrdersCountRef.current = ordersData.length;
+      const sortedOrders = ordersData.sort((a, b) => {
+        const aFinished = a.status.includes('TERMINADA');
+        const bFinished = b.status.includes('TERMINADA');
+        
+        // Priority to unfinished tasks
+        if (!aFinished && bFinished) return -1;
+        if (aFinished && !bFinished) return 1;
+        
+        // Secondary sort: chronological (oldest first for pending, or newest first?)
+        // The user said "orden cronologico", usually means oldest first for queue, 
+        // but for app experience often newest is at top. 
+        // Let's use descending for both groups (newest at top) as per standard admin dashboards,
+        // or oldest first if they want a queue. I'll stick to a balanced approach: 
+        // Pending: Oldest first (FIFO queue). Finished: Newest first.
+        if (!aFinished) return new Date(a.createdAt) - new Date(b.createdAt);
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      setOrders(sortedOrders);
 
       // Fetch users in separate try-catch so it doesn't block orders
       try {
@@ -323,8 +340,8 @@ function TechnicianDashboard() {
       )}
 
       {showModal.visible && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', zIndex: 100 }}>
-          <div className="login-container" style={{ margin: 0, width: '100%', maxWidth: showModal.type === 'parts' ? '600px' : '450px' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', zIndex: 100, backdropFilter: 'blur(4px)' }}>
+          <div className="login-container" style={{ margin: 0, width: '100%', maxWidth: showModal.type === 'parts' ? '600px' : '450px', background: '#1a1d24', opacity: 1 }}>
             <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: showModal.type === 'findings' ? '#10b981' : showModal.type === 'parts' ? '#a855f7' : '#3b82f6' }}>
               {showModal.type === 'findings' && 'Concepto Técnico'}
               {showModal.type === 'parts' && 'Lista Estructurada de Repuestos'}

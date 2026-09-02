@@ -10,7 +10,22 @@ import DriverDashboard from './pages/DriverDashboard';
 import TechnicianDashboard from './pages/TechnicianDashboard';
 import WarehouseDashboard from './pages/WarehouseDashboard';
 
+import { useEffect } from 'react';
+import { setupPushNotifications } from './utils/pushSetup';
+
 function App() {
+  useEffect(() => {
+    // If user is already logged in, setup push notifications immediately
+    const userStr = localStorage.getItem('mtto_user');
+    if (userStr) {
+      try {
+        setupPushNotifications().catch(err => console.error("Auto setup push failed:", err));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
   const getInitialRoute = () => {
     const userStr = localStorage.getItem('mtto_user');
     if (!userStr) return "/login";
