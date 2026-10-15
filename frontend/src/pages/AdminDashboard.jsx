@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, HardHat, Users, Truck, Wrench } from 'lucide-react';
+import { getApiUrl } from '../config/api';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ function AdminDashboard() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/tasks/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

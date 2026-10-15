@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Plus, ArrowLeft, Loader2, Mail, BadgeCheck, Trash2 } from 'lucide-react';
+import { getApiUrl } from '../config/api';
 
 function UsersManager() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ function UsersManager() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/users`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -41,7 +42,7 @@ function UsersManager() {
 
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/users`, {
         method: 'POST',
         headers: {
@@ -68,7 +69,7 @@ function UsersManager() {
     if (!window.confirm('¿Eliminar este usuario permanentemente? El sistema bloqueará la acción si tiene historial operativo.')) return;
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/users/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Loader2, Package, Check, X, Bell, Truck, History, Info, AlertTriangle } from 'lucide-react';
 import { App } from '@capacitor/app';
+import { getApiUrl } from '../config/api';
 
 function WarehouseDashboard() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ function WarehouseDashboard() {
     if (!isSilent) setLoading(true);
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/tasks/warehouse`, { headers: { 'Authorization': `Bearer ${token}` } });
       if (res.ok) setOrders(await res.json());
     } catch (err) {
@@ -55,7 +56,7 @@ function WarehouseDashboard() {
   const togglePartStatus = async (partId, newStatus) => {
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       
       await fetch(`${apiUrl}/api/tasks/warehouse/parts/${partId}`, {
         method: 'PATCH',
@@ -78,7 +79,7 @@ function WarehouseDashboard() {
 
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const endpoint = type === 'dispatch' ? 'dispatch' : 'deliver';
       
       const res = await fetch(`${apiUrl}/api/tasks/warehouse/orders/${orderId}/${endpoint}`, {

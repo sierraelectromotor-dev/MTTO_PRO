@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Loader2, Plus, AlertTriangle, CheckCircle2, History, Car, ArrowRight, User } from 'lucide-react';
 import { App } from '@capacitor/app';
+import { getApiUrl } from '../config/api';
 
 function DriverDashboard() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ function DriverDashboard() {
     setLoading(true);
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       
       const [resReports, resVehicles] = await Promise.all([
         fetch(`${apiUrl}/api/tasks/my-reports`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -89,7 +90,7 @@ function DriverDashboard() {
 
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/tasks/fault-reports`, {
         method: 'POST',
         headers: {

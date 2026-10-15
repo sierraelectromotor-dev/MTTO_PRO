@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Lock, LogIn, HardHat } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { setupPushNotifications } from '../utils/pushSetup';
+import { getApiUrl } from '../config/api';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ function Login() {
     setError('');
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
         headers: {

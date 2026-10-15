@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Loader2, Wrench, CheckCircle, Package, Send, ArrowRight, BookOpen, Plus, Trash2 } from 'lucide-react';
 import { App } from '@capacitor/app';
+import { getApiUrl } from '../config/api';
 
 function TechnicianDashboard() {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ function TechnicianDashboard() {
     if (!isSilent) setError(null);
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       
       const resOrders = await fetch(`${apiUrl}/api/tasks/my-orders`, { 
         headers: { 'Authorization': `Bearer ${token}` } 
@@ -155,7 +156,7 @@ function TechnicianDashboard() {
   const updateStatusSimple = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/tasks/work-orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -192,7 +193,7 @@ function TechnicianDashboard() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       
       let res;
       if (showModal.type === 'parts') {

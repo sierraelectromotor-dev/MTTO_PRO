@@ -1,6 +1,7 @@
 import { PushNotifications } from '@capacitor/push-notifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
+import { getApiUrl } from '../config/api';
 
 export const setupPushNotifications = async () => {
   if (!Capacitor.isNativePlatform()) {
@@ -39,7 +40,7 @@ export const setupPushNotifications = async () => {
       console.log('FCM Token:', token.value);
       const jwt = localStorage.getItem('mtto_token');
       if (jwt) {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+        const apiUrl = getApiUrl();
         await fetch(`${apiUrl}/api/users/fcm-token`, {
           method: 'POST',
           headers: {

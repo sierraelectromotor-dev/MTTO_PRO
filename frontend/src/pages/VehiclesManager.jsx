@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck, Plus, ArrowLeft, Loader2, Gauge, Trash2 } from 'lucide-react';
+import { getApiUrl } from '../config/api';
 
 function VehiclesManager() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ function VehiclesManager() {
   const fetchVehicles = async () => {
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/vehicles`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -41,7 +42,7 @@ function VehiclesManager() {
 
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/vehicles`, {
         method: 'POST',
         headers: {
@@ -68,7 +69,7 @@ function VehiclesManager() {
     if (!window.confirm('¿Eliminar este vehículo de forma permanente? El sistema bloqueará la acción si tiene historial operativo.')) return;
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/vehicles/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }

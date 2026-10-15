@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Plus, ArrowLeft, Loader2, User } from 'lucide-react';
+import { getApiUrl } from '../config/api';
 
 function TenantsManager() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ function TenantsManager() {
   const fetchTenants = async () => {
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/tenants`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -41,7 +42,7 @@ function TenantsManager() {
 
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/tenants`, {
         method: 'POST',
         headers: {

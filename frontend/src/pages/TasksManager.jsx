@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, Loader2, PlayCircle, PlusCircle, Package, Trash2, CheckCircle, AlertOctagon, MapPin, ExternalLink, RefreshCw } from 'lucide-react';
 import { App } from '@capacitor/app';
+import { getApiUrl } from '../config/api';
 
 function TasksManager() {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ function TasksManager() {
     setError(null);
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       
       const [resTasks, resUsers] = await Promise.all([
         fetch(`${apiUrl}/api/tasks`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -108,7 +109,7 @@ function TasksManager() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       await fetch(`${apiUrl}/api/tasks/work-orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -129,7 +130,7 @@ function TasksManager() {
     if (!window.confirm('¿Seguro que deseas rechazar y eliminar este repuesto de la lista?')) return;
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       await fetch(`${apiUrl}/api/tasks/parts/${partId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -142,7 +143,7 @@ function TasksManager() {
     if (!window.confirm('¿Aprobar y enviar esta lista a bodega/almacén?')) return;
     try {
       const token = localStorage.getItem('mtto_token');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+      const apiUrl = getApiUrl();
       await fetch(`${apiUrl}/api/tasks/work-orders/${orderId}/parts-review`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
